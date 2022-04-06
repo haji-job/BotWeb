@@ -3,7 +3,7 @@
 //import cors from 'cors';
  let username = "local-user";
 let bot = new RiveScript();
-bot.loadFile("https://immaculatespotlesscodes.hajijob.repl.co/projet_js/brain.rive").then(loading_done).catch(e => {console.log(e)});
+bot.loadFile("./brain.rive").then(loading_done).catch(e => {console.log(e)});
 function loading_done() {
   console.log("Bot has finished loading!");
 
