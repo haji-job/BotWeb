@@ -1,1 +1,1 @@
-test
+https://unpkg.com/browse/rivescript@2.2.0/dist/
