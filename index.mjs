@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import {Low, JSONFile} from 'lowdb';
+import rivescript from 'rivescript';
 
 const app = express();
 app.use(cors()); // Enable ALL CORS request
@@ -15,6 +16,27 @@ const adapter = new JSONFile("./model/db.json");
 let db = new Low(adapter);
 await db.read();
 db.data = db.data || { Mouths: [] };
+
+let username = "local-user";
+let bot = new rivescript();
+bot.loadFile("./public/brain.rive").then(loading_done).catch(e => {console.log(e)});
+function loading_done() {
+  console.log("Bot has finished loading!");
+
+  // Now the replies must be sorted!
+  bot.sortReplies();
+
+
+  // RiveScript remembers user data by their username and can tell
+  // multiple users apart.
+
+  // NOTE: the API has changed in v2.0.0 and returns a Promise now.
+  bot.reply(username, "Hello, bot!").then(function(reply) {
+    console.log("The bot says: " + reply);
+  });
+}
+
+
 
 
 //End point to get all the tasks
@@ -30,19 +52,18 @@ app.get('/', (req, res)=>{
 	}
 });
 
-const template = (text) => {
+const template = (nom) => {
 return `
  <!DOCTYPE html>
  <html>
    <head>
     <title>chatbot</title>
- <script type="text/javascript" src="https://unpkg.com/rivescript@latest/dist/rivescript.min.js"></script>
 <script type="text/javascript" src="./test.js"></script>
 </head>
 
 <body>
 
-	<h1>${text}</h1>
+	<h1>${nom}</h1>
 
 	<p>
 		say: <input id="user_input" />
@@ -62,7 +83,19 @@ return `
 
 app.get('/:id', function(req, res) {
   let id = req.params.id;
+  let question = req.body
   res.send(template('chatbot '+id));
+});
+
+app.post('/:id', function(req, res) {
+  let id = req.params.id;
+  let question = req.body.question;
+  console.log(id);
+  console.log(question);
+  bot.reply(username,question).then(function(reply) {
+    console.log("The bot says: " + reply);
+   res.status(201).send(reply);
+    });
 });
 
 app.listen(port, () => {
