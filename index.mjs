@@ -36,7 +36,8 @@ function loading_done() {
   });
 }
 
-
+/*let listeBots = [];
+listeBots.push({'id':1,'bot':bot});*/
 
 
 //End point to get all the tasks
@@ -63,7 +64,7 @@ return `
 
 <body>
 
-	<h1>${nom}</h1>
+<h1> chatbot n°${nom}</h1>
 
 	<p>
 		say: <input id="user_input" />
@@ -84,7 +85,7 @@ return `
 app.get('/:id', function(req, res) {
   let id = req.params.id;
   let question = req.body
-  res.send(template('chatbot '+id));
+  res.send(template(id));
 });
 
 app.post('/:id', function(req, res) {
