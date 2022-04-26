@@ -1,8 +1,6 @@
-function chat() {
+function chat(id) {
     let input = document.getElementById("user_input").value;
-  //let id = document.getElementById("id_bot").value;
     console.log(input);
-  //console.log(id);
     let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/json');
 			let payload = {
@@ -17,8 +15,7 @@ function chat() {
            		cache: 'default',
            		body:myBody
         	};
-      let myURL = "https://botweb.hajijob.repl.co/54";
-
+      let myURL = "https://BotWeb.hajijob.repl.co/"+id;
         	//launch the request
 			fetch(myURL,myInit)
 			.then((httpResponse)=>{

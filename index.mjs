@@ -3,7 +3,6 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import {Low, JSONFile} from 'lowdb';
 import rivescript from 'rivescript';
-
 const app = express();
 app.use(cors()); // Enable ALL CORS request
 const port = 3001
@@ -20,6 +19,9 @@ db.data = db.data || { Mouths: [] };
 let username = "local-user";
 let bot = new rivescript();
 bot.loadFile("./public/brain.rive").then(loading_done).catch(e => {console.log(e)});
+
+let listeBots = [];
+listeBots.push({'id':1,'bot':bot});
 function loading_done() {
   console.log("Bot has finished loading!");
 
@@ -36,9 +38,12 @@ function loading_done() {
   });
 }
 
-/*let listeBots = [];
-listeBots.push({'id':1,'bot':bot});*/
 
+app.get('/bots',(req,res)=>{
+  let reponseListe = [];
+  listeBots.forEach(e => reponseListe.push({'id':e.id,'url':'https://BotWeb.hajijob.repl.co/'+e.id}));
+  res.status(200).json(reponseListe);
+});
 
 //End point to get all the tasks
 app.get('/', (req, res)=>{
@@ -53,7 +58,7 @@ app.get('/', (req, res)=>{
 	}
 });
 
-const template = (nom) => {
+const template = (text) => {
 return `
  <!DOCTYPE html>
  <html>
@@ -64,11 +69,11 @@ return `
 
 <body>
 
-<h1> chatbot n°${nom}</h1>
+	<h1>chatbot ${text}</h1>
 
 	<p>
 		say: <input id="user_input" />
-		<button id="submit" onclick=chat()>submit</button>
+		<button id="submit" onclick=chat(${text})>submit</button>
 	</p>
 
 	<p>
@@ -83,9 +88,14 @@ return `
 }
 
 app.get('/:id', function(req, res) {
-  let id = req.params.id;
-  let question = req.body
-  res.send(template(id));
+     let id = req.params.id;
+  if(listeBots.find(e => e.id==id)){
+    res.send(template(id));
+  }
+  else{
+    console.log('yo');
+    res.status(404).send('not found');
+  }
 });
 
 app.post('/:id', function(req, res) {
@@ -93,10 +103,11 @@ app.post('/:id', function(req, res) {
   let question = req.body.question;
   console.log(id);
   console.log(question);
-  bot.reply(username,question).then(function(reply) {
+  listeBots.find(e => e.id==id).bot.reply(username,question).then(function(reply) {
     console.log("The bot says: " + reply);
    res.status(201).send(reply);
     });
+  
 });
 
 app.listen(port, () => {
