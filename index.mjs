@@ -42,6 +42,7 @@ function loading_done() {
 app.get('/bots',(req,res)=>{
   let reponseListe = [];
   listeBots.forEach(e => reponseListe.push({'id':e.id,'url':'https://BotWeb.hajijob.repl.co/'+e.id}));
+  console.log(listeBots);
   res.status(200).json(reponseListe);
 });
 
@@ -95,6 +96,13 @@ app.get('/:id', function(req, res) {
   else{
     console.log('yo');
     res.status(404).send('not found');
+  }
+});
+
+app.post("/", function(req, res) {
+  if(!(listeBots.find(e=>e.id==5))){
+  let temp = new rivescript();
+  temp.loadFile("./public/brain.rive").then(temp.sortReplies()).then(listeBots.push({'id':5,'bot':temp})).catch(e => {console.log(e)});
   }
 });
 
