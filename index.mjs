@@ -70,7 +70,7 @@ return `
 
 <body>
 
-	<h1>chatbot ${text}</h1>
+	<h1>Chatbot ${text}</h1>
 
 	<p>
 		say: <input id="user_input" />
@@ -94,7 +94,6 @@ app.get('/:id', function(req, res) {
     res.send(template(id));
   }
   else{
-    console.log('yo');
     res.status(404).send('not found');
   }
 });
@@ -118,6 +117,12 @@ app.post('/:id', function(req, res) {
   
 });
 
+app.delete('/:id', function(req, res) {
+  let id = req.params.id;
+  listeBots.splice(listeBots.findIndex(e=>e.id==id),1);
+});
+
 app.listen(port, () => {
   		console.log(`Example app listening at http://localhost:${port}`)
 	});
+

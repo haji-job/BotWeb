@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Task Service Test Interface (TaSTI)</title>
+	<title>bot Service Test Interface (TaSTI)</title>
 	<style>
 		.modal {
 		  display: none;
@@ -28,32 +28,32 @@
 	<script>
 		document.addEventListener('DOMContentLoaded',init);
 
-		let taskListElt;
+		let botListElt;
 		let modal;
 		let inputTitle;
 		let inputStatus;
-		let addNewTaskButton;
+		let addNewbotButton;
 
 		function init(){
-			taskListElt = document.getElementById("taskListUL");
-			modal = document.getElementById("newTaskModal");
+			botListElt = document.getElementById("botListUL");
+			modal = document.getElementById("newbotModal");
 			inputTitle = document.getElementById("inputTitle");
 			inputStatus = document.getElementById("inputStatus");
 
 			reloadList();
 			//setInterval(reloadList,5000);
 
-			newTaskButton = document.getElementById("newTaskButton");
-			newTaskButton.addEventListener("click",()=>{modal.style.display = "block";});
-			addNewTaskButton = document.getElementById("addNewTaskButton");
-			addNewTaskButton.addEventListener("click",createNewTask);
+			newbotButton = document.getElementById("newbotButton");
+			newbotButton.addEventListener("click",()=>{modal.style.display = "block";});
+			addNewbotButton = document.getElementById("addNewbotButton");
+			addNewbotButton.addEventListener("click",createNewbot);
 
 		}
 
 		function reloadList(){
 			//first, clean up
-			while (taskListElt.firstChild) {
-  				taskListElt.removeChild(taskListElt.firstChild);
+			while (botListElt.firstChild) {
+  				botListElt.removeChild(botListElt.firstChild);
 			}
 			let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
@@ -77,9 +77,9 @@
 					}
 					return httpResponse.json()
 				})
-				.then((setOfTasks)=>{
-					for(let task of setOfTasks){
-						taskListElt.appendChild(createItem(task));
+				.then((setOfbots)=>{
+					for(let bot of setOfbots){
+						botListElt.appendChild(createItem(bot));
 					}
 				})
 				.catch((err)=>{
@@ -89,42 +89,42 @@
 
 
 
-		function createItem(task){
+		function createItem(bot){
 			let item = document.createElement("li");
 
 			// Adding a DELETE Button
 			let delBtn = document.createElement("button");
 			delBtn.innerHTML = "DELETE";
-			let id = `del_${task.id}`;
+			let id = `del_${bot.id}`;
 
 			delBtn.setAttribute("id",id);
-			delBtn.setAttribute("onclick",`deleteTask(${task.id})`);
-			//delBtn.addEventListener("click",()=>{deleteTask(task.id)});
+			delBtn.setAttribute("onclick",`deletebot(${bot.id})`);
+			//delBtn.addEventListener("click",()=>{deletebot(bot.id)});
 			item.appendChild(delBtn);
 
 
 			// Adding a PUT Button
 			let putBtn = document.createElement("button");
 			putBtn.innerHTML = "PUT";
-			putBtn.setAttribute("onclick",`replaceTask(${task.id})`);
-			//putBtn.addEventListener("click",()=>{replaceTask(task.id)});
+			putBtn.setAttribute("onclick",`replacebot(${bot.id})`);
+			//putBtn.addEventListener("click",()=>{replacebot(bot.id)});
 			item.appendChild(putBtn);
 
 			// Adding a PATCH Button
 			let patchBtn = document.createElement("button");
 			patchBtn.innerHTML = "PATCH";
-			patchBtn.setAttribute("onclick",`updateTask(${task.id})`);
-			//patchBtn.addEventListener("click",()=>{updateTask(task.id)});
+			patchBtn.setAttribute("onclick",`updatebot(${bot.id})`);
+			//patchBtn.addEventListener("click",()=>{updatebot(bot.id)});
 			item.appendChild(patchBtn);
 
 			let a = document.createElement("a");
-			a.href = ` ${task.url}`;
-			a.innerHTML = ` ${task.url}`;
+			a.href = ` ${bot.url}`;
+			a.innerHTML = ` ${bot.url}`;
 			item.appendChild(a);
 			return item;
 		}
 
-		function deleteTask(taskId){
+		function deletebot(botId){
 
 			let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/json');
@@ -135,8 +135,8 @@
                	mode: 'cors',
                	cache: 'default'
             };
-            let myURL = `http://localhost:3001/${taskId}`;
-			//let myURL = "http://localhost:3001/"+taskId;
+            let myURL = `https://botweb.hajijob.repl.co/${botId}`;
+			//let myURL = "http://localhost:3001/"+botId;
 			fetch(myURL,myInit)
 				.then((httpResponse)=>{
 					return httpResponse.text()
@@ -150,19 +150,19 @@
 				})
 		}
 
-		function replaceTask(taskId){
-			console.log(`replacing task with Id ${taskId}`);
+		function replacebot(botId){
+			console.log(`replacing bot with Id ${botId}`);
 			//TODO
 			//Obvioulsly, you will need to launch a modal
 		}
 
-		function updateTask(taskId){
-			console.log(`updating task with Id ${taskId}`);
+		function updatebot(botId){
+			console.log(`updating bot with Id ${botId}`);
 			//TODO
 			//Obvioulsly, you will need to launch a modal
 		}
 
-		function createNewTask(){
+		function createNewbot(){
 
   			modal.style.display = "none"; // Make the modal disapear
 
@@ -205,20 +205,20 @@
 </head>
 <body>
 
-	<ul id="taskListUL">
+	<ul id="botListUL">
 	</ul>
 
-	<button id="newTaskButton">ADD A NEW TASK</button>
-	<div id="newTaskModal" class="modal">
+	<button id="newbotButton">ADD A NEW bot</button>
+	<div id="newbotModal" class="modal">
 
 		<div class="modal-content">
-			<h1>Create a new Task</h1>
+			<h1>Create a new bot</h1>
     		<label for="inputTitle">Title:</label>
     		<input type="text" id="inputTitle" name="title"></input>
 
    			<label for="inputStatus">Status:</label>
     		<input type="text" id="inputStatus" name="status"></input>
-    		<button id="addNewTaskButton">Add This Task</button>
+    		<button id="addNewbotButton">Add This bot</button>
     	</div>
 
 	</div>
