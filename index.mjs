@@ -140,10 +140,39 @@ app.post('/:id', function(req, res) {
   
 });
 
+app.put('/:id', function(req,res) {
+  if(listeBots.find(e=>e.id==req.params.id)){
+    let id = req.params.id;
+    let brain = req.body.brain;
+    listeBots.splice(listeBots.findIndex(e=>e.id==id),1);
+    console.log(id);
+    console.log(brain);
+    let temp = new rivescript();
+    temp.stream(brain);
+    temp.sortReplies();
+    listeBots.push({'id':id,'bot':temp});
+    res.status(201).send(reply);
+  }
+  res.status(404).Send("not found");
+});
+
 app.delete('/:id', function(req, res) {
   let id = req.params.id;
   listeBots.splice(listeBots.findIndex(e=>e.id==id),1);
 });
+
+app.patch('/:id', function(req, res) {
+  console.log("coucou");
+  console.log(req.params.id);
+  if((listeBots.find(e=>e.id==req.params.id))){
+    console.log("if");
+    //let temp = listeBots.find(e=> e.id==req.params.id).bot;
+    //temp.stream(req.body);
+    console.log(req.body);
+    /*temp.sortReplies();
+    temp.write("./test.rive");*/
+    res.status(200).send("ok");
+}});
 
 app.listen(port, () => {
   		console.log(`Example app listening at http://localhost:${port}`)
