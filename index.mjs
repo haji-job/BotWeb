@@ -18,7 +18,7 @@ db.data = db.data || { Mouths: [] };
 
 let username = "local-user";
 let bot = new rivescript();
-bot.loadFile("./public/brain.rive").then(
+bot.loadFile("./public/brains/bb.rive").then(
   function(){
     bot.sortReplies();
   }
@@ -26,6 +26,13 @@ bot.loadFile("./public/brain.rive").then(
 
 let listeBots = [];
 listeBots.push({'id':1,'bot':bot});
+let bot2 = new rivescript();
+bot2.loadFile("./public/brains/aiden.rive").then(
+  function(){
+    bot2.sortReplies();
+  }
+).catch(e => {console.log(e)});
+listeBots.push({'id':2,'bot':bot2})
 
 
 app.get('/bots',(req,res)=>{
@@ -78,7 +85,10 @@ return `
 }
 
 app.get('/test', function(req, res) {
-
+  listeBots.find(e=> e.id==1).bot.stream(listeBots.find(e=>e.id==2).bot.stringify());
+  listeBots.find(e=> e.id==1).bot.sortReplies();
+  listeBots.find(e=>e.id==1).bot.write("./test1.rive");
+  res.status(200).send("ok");
 });
 
 app.get('/:id', function(req, res) {
