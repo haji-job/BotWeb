@@ -18,30 +18,19 @@ db.data = db.data || { Mouths: [] };
 
 let username = "local-user";
 let bot = new rivescript();
-bot.loadFile("./public/brain.rive").then(loading_done).catch(e => {console.log(e)});
+bot.loadFile("./public/brain.rive").then(
+  function(){
+    bot.sortReplies();
+  }
+).catch(e => {console.log(e)});
 
 let listeBots = [];
 listeBots.push({'id':1,'bot':bot});
-function loading_done() {
-  console.log("Bot has finished loading!");
-
-  // Now the replies must be sorted!
-  bot.sortReplies();
-
-
-  // RiveScript remembers user data by their username and can tell
-  // multiple users apart.
-
-  // NOTE: the API has changed in v2.0.0 and returns a Promise now.
-  bot.reply(username, "Hello, bot!").then(function(reply) {
-    console.log("The bot says: " + reply);
-  });
-}
 
 
 app.get('/bots',(req,res)=>{
   let reponseListe = [];
-  listeBots.forEach(e => reponseListe.push({'id':e.id,'url':'https://BotWeb.hajijob.repl.co/'+e.id}));
+  listeBots.forEach(e => reponseListe.push({'id':e.id,'url':'https://BotWeb.hajijob.repl.co/'+e.id+'/mouth'}));
   console.log(listeBots);
   res.status(200).json(reponseListe);
 });
@@ -65,7 +54,7 @@ return `
  <html>
    <head>
     <title>chatbot</title>
-<script type="text/javascript" src="./test.js"></script>
+<script type="text/javascript" src="../test.js"></script>
 </head>
 
 <body>
@@ -81,16 +70,34 @@ return `
 		reply: <span id="output"></span>
 	</p>
 
-  <img src='./chat.jpeg'></img>
+  <img src='../chat.jpeg'></img>
 
 </body>
 
 </html>`;
 }
 
+app.get('/test', function(req, res) {
+
+});
+
 app.get('/:id', function(req, res) {
      let id = req.params.id;
   if(listeBots.find(e => e.id==id)){
+    res.status(200).send(listeBots.find(e => e.id==id).bot.stringify());
+  }
+  else{
+    res.status(404).send("not found");
+  }
+});
+
+app.get('/:id/mouth', function(req, res) {
+     let id = req.params.id;
+  if(listeBots.find(e => e.id==id)){
+    let e = listeBots.find(e => e.id==id).bot;
+    console.log("avant");
+    e.write("./public/test.rive");
+    console.log("après");
     res.send(template(id));
   }
   else{
@@ -99,9 +106,15 @@ app.get('/:id', function(req, res) {
 });
 
 app.post("/", function(req, res) {
-  if(!(listeBots.find(e=>e.id==5))){
-  let temp = new rivescript();
-  temp.loadFile("./public/brain.rive").then(temp.sortReplies()).then(listeBots.push({'id':5,'bot':temp})).catch(e => {console.log(e)});
+  if(typeof req.body.id == 'number'){
+    if(!(listeBots.find(e=>e.id==req.body.id))){
+    let temp = new rivescript();
+  temp.loadFile("./public/brain.rive").then(
+    function(){
+      temp.sortReplies();
+    }
+  ).then(listeBots.push({'id':req.body.id,'bot':temp})).catch(e => {console.log(e)});
+    }
   }
 });
 
@@ -113,7 +126,7 @@ app.post('/:id', function(req, res) {
   listeBots.find(e => e.id==id).bot.reply(username,question).then(function(reply) {
     console.log("The bot says: " + reply);
    res.status(201).send(reply);
-    });
+    }).catch(e => {console.log(e)});
   
 });
 
