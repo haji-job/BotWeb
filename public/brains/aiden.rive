@@ -110,3 +110,14 @@
 - My website is at <bot website>
 - Check it out at <bot website>
 
++ my name is *
+- <set name=<star>>It's nice to meet you, <get name>.
+
++ what is my name
+- Your name is <get name>, silly!
+
++ i am # years old
+- <set age=<star>>I will remember that you are <get age> years old.
+
++ how old am i
+- You are <get age> years old.

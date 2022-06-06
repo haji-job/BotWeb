@@ -23,7 +23,6 @@ bot.loadFile("./public/brains/bb.rive").then(
     bot.sortReplies();
   }
 ).catch(e => {console.log(e)});
-
 let listeBots = [];
 listeBots.push({'id':1,'bot':bot});
 let bot2 = new rivescript();
@@ -83,6 +82,12 @@ return `
 
 </html>`;
 }
+app.get('/testBot',function(req,res){
+  listeBots.find(e=> e.id==2).bot.getUservars().then(e => console.log(e));
+  listeBots.find(e=> e.id==2).bot.getUservar('local-user','__history__').then(e=> console.log(e));
+  listeBots.find(e=> e.id==2).bot.getUservar('local-user','__last_triggers__').then(e=> console.log(e));
+  res.status(200).send("ok");
+});
 
 app.get('/test', function(req, res) {
   listeBots.find(e=> e.id==1).bot.stream(listeBots.find(e=>e.id==2).bot.stringify());
