@@ -121,16 +121,22 @@ app.get('/:id/mouth', function(req, res) {
 });
 
 app.post("/", function(req, res) {
-  if(typeof req.body.id == 'number'){
-    if(!(listeBots.find(e=>e.id==req.body.id))){
+  listeBots.sort(function(a, b) {
+  // Compare the 2 id
+  if (a.id <b.id) return -1;
+  if (a.id >b.id) return 1;
+  return 0;
+});
+  let newid= listeBots[listeBots.length-1].id+1;
+  console.log(newid);
+    if(!(listeBots.find(e=>e.id==newid))){
     let temp = new rivescript();
   temp.loadFile("./public/brain.rive").then(
     function(){
       temp.sortReplies();
     }
-  ).then(listeBots.push({'id':req.body.id,'bot':temp})).catch(e => {console.log(e)});
+  ).then(listeBots.push({'id':newid,'bot':temp})).catch(e => {console.log(e)});
     }
-  }
 });
 
 app.post('/:id', function(req, res) {

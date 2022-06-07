@@ -151,6 +151,9 @@
 		}
 
 		function replacebot(botId){
+			console.log(`replacing bot with Id ${botId}`);
+			//TODO
+			//Obvioulsly, you will need to launch a modal
 		}
 
 		function updatebot(botId){
@@ -168,7 +171,8 @@
 			myHeaders.append('Content-Type', 'application/json');
 			let payload = {
            			title:inputTitle.value,
-           			status:inputStatus.value
+           			status:inputStatus.value,
+                id:7
            	};
 			let myBody = JSON.stringify(payload);
 			let myInit = {
@@ -178,7 +182,7 @@
            		cache: 'default',
            		body:myBody
         	};
-        	let myURL = "http://localhost:3001/";
+        	let myURL = "https://botweb.hajijob.repl.co/";
 
         	//launch the request
 			fetch(myURL,myInit)
