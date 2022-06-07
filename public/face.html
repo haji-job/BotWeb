@@ -33,6 +33,7 @@
 		let inputTitle;
 		let inputStatus;
 		let addNewbotButton;
+    let listeBrains =[];
 
 		function init(){
 			botListElt = document.getElementById("botListUL");
@@ -68,7 +69,12 @@
                	cache: 'no-store'
             };
 
-			let myURL = `https://botweb.hajijob.repl.co/bots`;
+			let myURL = `https://botweb.hajijob.repl.co/brains`;
+      			fetch(myURL,myInit)
+				.then((httpResponse)=>{return httpResponse.json()}).then((setbrains) => {
+          listeBrains = setbrains;
+      console.log(listeBrains);
+			 myURL = `https://botweb.hajijob.repl.co/bots`;
 
 			fetch(myURL,myInit)
 				.then((httpResponse)=>{
@@ -85,9 +91,12 @@
 				.catch((err)=>{
 					console.log(`ERROR : ${err}`);
 				})
-		}
+		});
+    }
 
-
+function tryprint(id){
+  console.log(id);
+}
 
 		function createItem(bot){
 			let item = document.createElement("li");
@@ -117,10 +126,33 @@
 			//patchBtn.addEventListener("click",()=>{updatebot(bot.id)});
 			item.appendChild(patchBtn);
 
+			let a2 = document.createElement("a");
+			a2.innerHTML = `<strong> name: ${bot.name}, status: ${bot.status}, brain: ${bot.brain} </strong>`;
+			item.appendChild(a2);
+      
 			let a = document.createElement("a");
 			a.href = ` ${bot.url}`;
 			a.innerHTML = ` ${bot.url}`;
 			item.appendChild(a);
+      let label = document.createElement("label");
+      label.innerHTML = " changer de cerveau: "; 
+      item.appendChild(label);
+      let opt = document.createElement("select");
+      let option = document.createElement("option");
+        option.innerHTML = "original: " + bot.brain;
+      opt.appendChild(option);
+     for (let i=0; i < listeBrains.length;i++){
+        console.log(listeBrains[i]);
+        let optioni = document.createElement("option");
+        optioni.innerHTML =listeBrains[i].name;
+        opt.appendChild(optioni);
+      }
+      opt.addEventListener('change', function () {
+  console.log(this.value); 
+        reloadList();
+        
+      });
+      item.appendChild(opt);
 			return item;
 		}
 

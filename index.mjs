@@ -15,7 +15,9 @@ const adapter = new JSONFile("./model/db.json");
 let db = new Low(adapter);
 await db.read();
 db.data = db.data || { Mouths: [] };
-
+let listeBrains=[] ;
+listeBrains.push({'name':"aiden"});
+  listeBrains.push({'name':"bb"});
 let username = "local-user";
 let bot = new rivescript();
 bot.loadFile("./public/brains/bb.rive").then(
@@ -24,19 +26,22 @@ bot.loadFile("./public/brains/bb.rive").then(
   }
 ).catch(e => {console.log(e)});
 let listeBots = [];
-listeBots.push({'id':1,'bot':bot});
+listeBots.push({'id':1,'name':'bot'+1,'status':'up','brain':'bb','bot':bot});
 let bot2 = new rivescript();
 bot2.loadFile("./public/brains/aiden.rive").then(
   function(){
     bot2.sortReplies();
   }
 ).catch(e => {console.log(e)});
-listeBots.push({'id':2,'bot':bot2})
+listeBots.push({'id':2,'name':'bot'+2,'status':'up','brain':'aiden','bot':bot2})
 
-
+app.get('/brains',(req,res)=>{
+  console.log(listeBrains);
+  res.status(200).json(listeBrains);
+});
 app.get('/bots',(req,res)=>{
   let reponseListe = [];
-  listeBots.forEach(e => reponseListe.push({'id':e.id,'url':'https://BotWeb.hajijob.repl.co/'+e.id+'/mouth'}));
+  listeBots.forEach(e => reponseListe.push({'id':e.id,'name':e.name,'status':e.status,'brain':e.brain,'url':'https://BotWeb.hajijob.repl.co/'+e.id+'/mouth'}));
   console.log(listeBots);
   res.status(200).json(reponseListe);
 });
@@ -131,11 +136,11 @@ app.post("/", function(req, res) {
   console.log(newid);
     if(!(listeBots.find(e=>e.id==newid))){
     let temp = new rivescript();
-  temp.loadFile("./public/brain.rive").then(
+  temp.loadFile("./public/bb.rive").then(
     function(){
       temp.sortReplies();
     }
-  ).then(listeBots.push({'id':newid,'bot':temp})).catch(e => {console.log(e)});
+  ).then(listeBots.push({'id':newid,'name':name,'status':status,'brain':'bb','bot':temp})).catch(e => {console.log(e)});
     }
 });
 
