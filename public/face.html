@@ -75,13 +75,11 @@
       			fetch(myURL,myInit)
 				.then((httpResponse)=>{return httpResponse.json()}).then((setbrains) => {
           listeBrains = setbrains;
-      console.log(listeBrains);
 			 myURL = `https://botweb.hajijob.repl.co/bots`;
 
 			fetch(myURL,myInit)
 				.then((httpResponse)=>{
 					for(let field of httpResponse.headers){
-						console.log(`raw = ${field}`);
 					}
 					return httpResponse.json()
 				})
@@ -123,7 +121,6 @@
       option.value = bot.brain;
       opt.appendChild(option);
      for (let i=0; i < listeBrains.length;i++){
-        console.log(listeBrains[i]);
         let optioni = document.createElement("option");
         optioni.innerHTML =listeBrains[i].name;
        optioni.value = listeBrains[i].name;
@@ -170,16 +167,10 @@
       reloadList();
 		}
 
-		function replacebot(botId){
-			console.log(`replacing bot with Id ${botId}`);
-			//TODO
-			//Obvioulsly, you will need to launch a modal
-		}
+
 function updateBot(botId){
-  console.log("test");
   let name= document.getElementById("name"+botId).value;
   let status=document.getElementById("status"+botId).value;
-  console.log(botId,name,status);
   			let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/json');
 		let payload = {
@@ -250,7 +241,6 @@ function updateBot(botId){
 				//clear fields
 				inputName.value="";
 				inputStatus.value="";
-				console.log(`response is ${responseBody}`);
 			})
 			.catch((err)=>{
 				console.log(`ERROR : ${err}`);

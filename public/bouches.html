@@ -74,7 +74,6 @@
       			fetch(myURL,myInit)
 				.then((httpResponse)=>{return httpResponse.json()}).then((setbots) => {
           listeBots = setbots;
-          console.log(listeBots);
 			 myURL = `https://botweb.hajijob.repl.co/bouches`;
 
 			fetch(myURL,myInit)
@@ -170,14 +169,6 @@
       reloadList();
 		}
 
-		function replacebouche(boucheId){
-			console.log(`replacing bouche with Id ${boucheId}`);
-			//TODO
-			//Obvioulsly, you will need to launch a modal
-		}
-function updatebouche(boucheId){
-  
-}
 		function changeBot(boucheId,value){
 			let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/json');
