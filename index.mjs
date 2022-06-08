@@ -14,10 +14,13 @@ app.use(express.static('public'))
 const adapter = new JSONFile("./model/db.json");
 let db = new Low(adapter);
 await db.read();
-db.data = db.data || { Mouths: [] };
+//db.data = db.data || { Mouths: [] };
+
 let listeBrains=[] ;
 listeBrains.push({'name':"aiden"});
   listeBrains.push({'name':"bb"});
+  listeBrains.push({'name':"tonton"});
+listeBrains.push({"name":"standard"});
 let username = "local-user";
 let bot = new rivescript();
 bot.loadFile("./public/brains/bb.rive").then(
@@ -34,11 +37,27 @@ bot2.loadFile("./public/brains/aiden.rive").then(
   }
 ).catch(e => {console.log(e)});
 listeBots.push({'id':2,'name':'bot'+2,'status':'up','brain':'aiden','bot':bot2})
+let bot3 = new rivescript();
+bot3.loadFile("./public/brains/tonton.rive").then(
+  function(){
+    bot3.sortReplies();
+  }
+).catch(e => {console.log(e)});
+listeBots.push({'id':3,'name':'bot'+3,'status':'up','brain':'tonton','bot':bot3});
+
+let listeBouches = [];
+listeBouches.push({'id':1,'name':'bouche'+1,'botID':'none'});
+console.log(listeBouches);
+
 
 app.get('/brains',(req,res)=>{
-  console.log(listeBrains);
   res.status(200).json(listeBrains);
 });
+app.get('/bouches',(req,res)=>{
+  res.status(200).json(listeBouches);
+});
+
+
 app.get('/bots',(req,res)=>{
   let reponseListe = [];
   listeBots.forEach(e => reponseListe.push({'id':e.id,'name':e.name,'status':e.status,'brain':e.brain,'url':'https://BotWeb.hajijob.repl.co/'+e.id+'/mouth'}));
@@ -49,7 +68,6 @@ app.get('/bots',(req,res)=>{
 //End point to get all the tasks
 app.get('/', (req, res)=>{
 	try{
-    let json_var = {'test':'oui'};
 		res.sendFile('index.html', { root: '.' })
 
 	}
@@ -66,11 +84,19 @@ return `
    <head>
     <title>chatbot</title>
 <script type="text/javascript" src="../test.js"></script>
+<script>
+function login(){
+  let login = prompt("Please enter your name:", "coucou");
+let elt = document.getElementById("login");
+elt.value = login;
+}
+</script>
 </head>
 
-<body>
+<body onload="login()">
 
 	<h1>Chatbot ${text}</h1>
+<input type="hidden" id="login"></input>
 
 	<p>
 		say: <input id="user_input" />
@@ -87,6 +113,11 @@ return `
 
 </html>`;
 }
+
+app.post('/mouth/:id',function(req,res){
+  
+});
+
 app.get('/testBot',function(req,res){
   listeBots.find(e=> e.id==2).bot.getUservars().then(e => console.log(e));
   listeBots.find(e=> e.id==2).bot.getUservar('local-user','__history__').then(e=> console.log(e));
@@ -95,9 +126,9 @@ app.get('/testBot',function(req,res){
 });
 
 app.get('/test', function(req, res) {
-  listeBots.find(e=> e.id==1).bot.stream(listeBots.find(e=>e.id==2).bot.stringify());
+  listeBots.find(e=> e.id==2).bot.stream(listeBots.find(e=>e.id==1).bot.stringify());
   listeBots.find(e=> e.id==1).bot.sortReplies();
-  listeBots.find(e=>e.id==1).bot.write("./test1.rive");
+ /* listeBots.find(e=>e.id==1).bot.write("./test1.rive");*/
   res.status(200).send("ok");
 });
 
@@ -110,14 +141,17 @@ app.get('/:id', function(req, res) {
     res.status(404).send("not found");
   }
 });
-
+app.get('/:id/data', function(req, res) {  try{listeBots.find(e=> e.id==req.params.id).bot.getUservars().then(e => {
+  console.log(e);
+  res.status(200).send(e);
+}).catch(e => console.log(e)); }catch(e){
+   console.log(e);                                        res.status(404).send("not found");}
+  
+});
 app.get('/:id/mouth', function(req, res) {
      let id = req.params.id;
   if(listeBots.find(e => e.id==id)){
     let e = listeBots.find(e => e.id==id).bot;
-    console.log("avant");
-    e.write("./public/test.rive");
-    console.log("après");
     res.send(template(id));
   }
   else{
@@ -132,41 +166,46 @@ app.post("/", function(req, res) {
   if (a.id >b.id) return 1;
   return 0;
 });
-  let newid= listeBots[listeBots.length-1].id+1;
-  console.log(newid);
+  let newid= listeBots[listeBots.length-1].id++;
     if(!(listeBots.find(e=>e.id==newid))){
-    let temp = new rivescript();
-  temp.loadFile("./public/bb.rive").then(
-    function(){
-      temp.sortReplies();
-    }
-  ).then(listeBots.push({'id':newid,'name':name,'status':status,'brain':'bb','bot':temp})).catch(e => {console.log(e)});
+   let temp = new rivescript(); 
+      let brain = "standard";
+      temp.loadFile("./public/brains/"+brain+".rive").then(
+  function(){
+    temp.sortReplies();
+  }
+).catch(e => {console.log(e)});
+listeBots.push({'id':newid,'name':req.body.name,'status':req.body.status,'brain':brain,'bot':temp}).catch(e => {console.log(e)});
     }
 });
 
 app.post('/:id', function(req, res) {
   let id = req.params.id;
   let question = req.body.question;
+  let login = req.body.login;
   console.log(id);
   console.log(question);
-  listeBots.find(e => e.id==id).bot.reply(username,question).then(function(reply) {
+  listeBots.find(e => e.id==id).bot.reply(login,question).then(function(reply) {
     console.log("The bot says: " + reply);
    res.status(201).send(reply);
     }).catch(e => {console.log(e)});
   
 });
 
-app.put('/:id', function(req,res) {
-  if(listeBots.find(e=>e.id==req.params.id)){
-    let id = req.params.id;
+app.put('/:id', function(req,res) { 
+  let id = req.params.id;
     let brain = req.body.brain;
-    listeBots.splice(listeBots.findIndex(e=>e.id==id),1);
-    console.log(id);
+  if(listeBots.find(e=>e.id==req.params.id)){
+    
+   let bot = listeBots.find(e=>e.id==id); listeBots.splice(listeBots.findIndex(e=>e.id==id),1);
+   
     console.log(brain);
+    console.log(bot.name); 
     let temp = new rivescript();
-    temp.stream(brain);
+    temp.loadFile("./public/brains/"+brain+".rive").then(function(){
     temp.sortReplies();
-    listeBots.push({'id':id,'bot':temp});
+    });
+    listeBots.push({'id':id,'name':bot.name,'status':bot.status,'brain':brain,'bot':temp});
     res.status(201).send(reply);
   }
   res.status(404).Send("not found");
@@ -178,17 +217,17 @@ app.delete('/:id', function(req, res) {
 });
 
 app.patch('/:id', function(req, res) {
-  console.log("coucou");
   console.log(req.params.id);
+  console.log(req.body);
   if((listeBots.find(e=>e.id==req.params.id))){
-    console.log("if");
-    //let temp = listeBots.find(e=> e.id==req.params.id).bot;
-    //temp.stream(req.body);
-    console.log(req.body);
-    /*temp.sortReplies();
-    temp.write("./test.rive");*/
+    listeBots.find(e=>e.id==req.params.id).name=req.body.name;
+    listeBots.find(e=>e.id==req.params.id).status=req.body.status;
     res.status(200).send("ok");
-}});
+}
+  else{
+    res.status(404).send("not found")
+  }
+});
 
 app.listen(port, () => {
   		console.log(`Example app listening at http://localhost:${port}`)

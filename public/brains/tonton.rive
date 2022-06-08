@@ -1,0 +1,25 @@
++ hello bot
+- Bonjour ! J'espère que tu vas bien. Salut l'amphi =^)
+
++ [*] je vais bien
+- Cool ! Moi ça va nickel, et le petit Jason aussi.
+
++ [*] je vais mal
+- Ah mince, c'est la faute à pas de chance.
+
++ je m appelle *
+- <set name=<formal>> En chantier je m'appelle Teuse. Ravi de te rencontrer <get name>
+
++ j aime *
+- <set hobby=<formal>><get hobby> ? C'est très interessant
+- <set hobby=<formal>>J'aime beaucoup aussi figure toi !
+
++ devine ce que j aime
+- <get hobby> 
+
++ quel est mon nom 
+- <get name>
+
++ *
+- *plisse les yeux*
+- Pardon ? Je n'ai pas compris ce que t'as dit

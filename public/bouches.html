@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>bot Service Test Interface (TaSTI)</title>
+	<title>bouche Service Test Interface (TaSTI)</title>
 	<style>
 		.modal {
 		  display: none;
@@ -28,33 +28,33 @@
 	<script>
 		document.addEventListener('DOMContentLoaded',init);
 
-		let botListElt;
+		let boucheListElt;
 		let modal;
 		let inputName;
 		let inputStatus;
-		let addNewbotButton;
-    let listeBrains =[];
+		let addNewboucheButton;
+    let listeBots =[];
 
 		function init(){
-			botListElt = document.getElementById("botListUL");
-			modal = document.getElementById("newbotModal");
+			boucheListElt = document.getElementById("boucheListUL");
+			modal = document.getElementById("newboucheModal");
 			inputName = document.getElementById("inputName");
 			inputStatus = document.getElementById("inputStatus");
 
 			reloadList();
 			//setInterval(reloadList,5000);
 
-			newbotButton = document.getElementById("newbotButton");
-			newbotButton.addEventListener("click",()=>{modal.style.display = "block";});
-			addNewbotButton = document.getElementById("addNewbotButton");
-			addNewbotButton.addEventListener("click",createNewbot);
+			newboucheButton = document.getElementById("newboucheButton");
+			newboucheButton.addEventListener("click",()=>{modal.style.display = "block";});
+			addNewboucheButton = document.getElementById("addNewboucheButton");
+			addNewboucheButton.addEventListener("click",createNewbouche);
 
 		}
 
 		function reloadList(){
 			//first, clean up
-			while (botListElt.firstChild) {
-  				botListElt.removeChild(botListElt.firstChild);
+			while (boucheListElt.firstChild) {
+  				boucheListElt.removeChild(boucheListElt.firstChild);
 			}
 			let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
@@ -69,12 +69,12 @@
                	cache: 'no-store'
             };
 
-			let myURL = `https://botweb.hajijob.repl.co/brains`;
+			let myURL = `https://botweb.hajijob.repl.co/bots`;
       			fetch(myURL,myInit)
-				.then((httpResponse)=>{return httpResponse.json()}).then((setbrains) => {
-          listeBrains = setbrains;
-      console.log(listeBrains);
-			 myURL = `https://botweb.hajijob.repl.co/bots`;
+				.then((httpResponse)=>{return httpResponse.json()}).then((setbots) => {
+          listeBots = setbots;
+      console.log(listeBots);
+			 myURL = `https://botweb.hajijob.repl.co/bouches`;
 
 			fetch(myURL,myInit)
 				.then((httpResponse)=>{
@@ -83,9 +83,9 @@
 					}
 					return httpResponse.json()
 				})
-				.then((setOfbots)=>{
-					for(let bot of setOfbots){
-						botListElt.appendChild(createItem(bot));
+				.then((setOfbouches)=>{
+					for(let bouche of setOfbouches){
+						boucheListElt.appendChild(createItem(bouche));
 					}
 				})
 				.catch((err)=>{
@@ -94,52 +94,55 @@
 		});
     }
 
+function tryprint(id){
+  console.log(id);
+}
 
-		function createItem(bot){
+		function createItem(bouche){
 			let item = document.createElement("li");
 
 			// Adding a DELETE Button
 			let delBtn = document.createElement("button");
 			delBtn.innerHTML = "DELETE";
-			let id = `del_${bot.id}`;
+			let id = `del_${bouche.id}`;
 
 			delBtn.setAttribute("id",id);
-			delBtn.setAttribute("onclick",`deletebot(${bot.id})`);
-			//delBtn.addEventListener("click",()=>{deletebot(bot.id)});
+			delBtn.setAttribute("onclick",`deletebouche(${bouche.id})`);
+			//delBtn.addEventListener("click",()=>{deletebouche(bouche.id)});
 			item.appendChild(delBtn);
 
-			let a2 = document.createElement("a");
-			a2.innerHTML = `<strong> name:<input onchange="updateBot(${bot.id})" id="name${bot.id}" value=${bot.name} > </input>, status: <select onchange="updateBot(${bot.id})" id="status${bot.id}" value=${bot.status}><option>original:${bot.status}</option><option>linked</option><option> unlinked</option></select>, brain: ${bot.brain} </strong>`;
-			item.appendChild(a2);
 
+		
+			let a2 = document.createElement("a");
+			a2.innerHTML = `<strong> name: ${bouche.name} </strong>`;
+			item.appendChild(a2);
+      
+			let a = document.createElement("a");
+			a.href = ` https://botweb.hajijob.repl.co/bouche/${bouche.id}`;
+			a.innerHTML = `https://botweb.hajijob.repl.co/bouche/${bouche.id}`;
+			item.appendChild(a);
       let label = document.createElement("label");
-      label.innerHTML = " changer de cerveau: "; 
+      label.innerHTML = " changer de chatbot: "; 
       item.appendChild(label);
       let opt = document.createElement("select");
       let option = document.createElement("option");
-        option.innerHTML = "original: " + bot.brain;
+        option.innerHTML = "original: " + bouche.brain;
       opt.appendChild(option);
-     for (let i=0; i < listeBrains.length;i++){
-        console.log(listeBrains[i]);
+     for (let i=0; i < listeBots.length;i++){
+        console.log(listeBots[i]);
         let optioni = document.createElement("option");
-        optioni.innerHTML =listeBrains[i].name;
+        optioni.innerHTML =listeBots[i].name;
         opt.appendChild(optioni);
       }
-
       opt.addEventListener('change',
                            function(){
-    changeBrain(`${bot.id}`,this.value)
+    changeBrain(`${bouche.id}`,this.value)
                            } );
       item.appendChild(opt);
-                  
-			let a = document.createElement("a");
-			a.href = ` ${bot.url}`;
-			a.innerHTML = `<br></br> ${bot.url}<br></br>`;
-			item.appendChild(a);
 			return item;
 		}
 
-		function deletebot(botId){
+		function deletebouche(boucheId){
 
 			let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/json');
@@ -150,8 +153,8 @@
                	mode: 'cors',
                	cache: 'default'
             };
-            let myURL = `https://botweb.hajijob.repl.co/${botId}`;
-			//let myURL = "http://localhost:3001/"+botId;
+            let myURL = `https://botweb.hajijob.repl.co/bouche/${boucheId}`;
+			//let myURL = "http://localhost:3001/"+boucheId;
 			fetch(myURL,myInit)
 				.then((httpResponse)=>{
 					return httpResponse.text()
@@ -166,36 +169,18 @@
       reloadList();
 		}
 
-		function replacebot(botId){
-			console.log(`replacing bot with Id ${botId}`);
+		function replacebouche(boucheId){
+			console.log(`replacing bouche with Id ${boucheId}`);
 			//TODO
 			//Obvioulsly, you will need to launch a modal
 		}
-function updateBot(botId){
-  console.log("test");
-  let name= document.getElementById("name"+botId).value;
-  let status=document.getElementById("status"+botId).value;
-  console.log(botId,name,status);
-  			let myHeaders = new Headers();
-			myHeaders.append('Content-Type', 'application/json');
-		let payload = {
-           			name:name,
-           			status:status
-           	};
-			let myBody = JSON.stringify(payload);
-			let myInit = {
-				method: 'PATCH',
-           		headers: myHeaders,
-           		mode: 'cors',
-           		cache: 'default',
-           		body:myBody
-        	};
-        	let myURL = "https://botweb.hajijob.repl.co/"+botId;
-      			fetch(myURL,myInit)
-				.then(reloadList());
+function updatebouche(boucheId){
   
 }
-		function changeBrain(botId,value){
+		function changeBrain(boucheId,value){
+      console.log("trying");
+			console.log(boucheId);
+      console.log(value);
 			let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/json');
 		let payload = {
@@ -210,12 +195,12 @@ function updateBot(botId){
            		cache: 'default',
            		body:myBody
         	};
-        	let myURL = "https://botweb.hajijob.repl.co/"+botId;
+        	let myURL = "https://botweb.hajijob.repl.co/bouche"+boucheId;
       			fetch(myURL,myInit)
 				.then(reloadList());
 		}
 
-		function createNewbot(){
+		function createNewbouche(){
 
   			modal.style.display = "none"; // Make the modal disapear
 
@@ -235,7 +220,7 @@ function updateBot(botId){
            		cache: 'default',
            		body:myBody
         	};
-        	let myURL = "https://botweb.hajijob.repl.co/";
+        	let myURL = "https://botweb.hajijob.repl.co/bouches";
 
         	//launch the request
 			fetch(myURL,myInit)
@@ -259,20 +244,20 @@ function updateBot(botId){
 </head>
 <body>
 
-	<ul id="botListUL">
+	<ul id="boucheListUL">
 	</ul>
 
-	<button id="newbotButton">ADD A NEW bot</button>
-	<div id="newbotModal" class="modal">
+	<button id="newboucheButton">ADD A NEW bouche</button>
+	<div id="newboucheModal" class="modal">
 
 		<div class="modal-content">
-			<h1>Create a new bot</h1>
+			<h1>Create a new bouche</h1>
     		<label for="inputName">Name:</label>
     		<input type="text" id="inputName" name="name"></input>
 
    			<label for="inputStatus">Status:</label>
     		<input type="text" id="inputStatus" name="status"></input>
-    		<button id="addNewbotButton">Add This bot</button>
+    		<button id="addNewboucheButton">Add This bouche</button>
     	</div>
 
 	</div>

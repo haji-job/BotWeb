@@ -1,9 +1,11 @@
 function chat(id) {
     let input = document.getElementById("user_input").value;
-    console.log(input);
+let login = document.getElementById("login").value;
+  
     let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/json');
 			let payload = {
+                login:login,
            			question:input
            	};
 			let myBody = JSON.stringify(payload);
