@@ -1,26 +1,29 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import {Low, JSONFile} from 'lowdb';
 import rivescript from 'rivescript';
 const app = express();
 app.use(cors()); // Enable ALL CORS request
 const port = 3001
-
 app.use(bodyParser.json()) 
 app.use(bodyParser.urlencoded({ extended: true })) 
 app.use(express.static('public'))
 
-const adapter = new JSONFile("./model/db.json");
-let db = new Low(adapter);
-await db.read();
-//db.data = db.data || { Mouths: [] };
 
-let listeBrains=[] ;
+//npm i @replit/database
+import Database from "@replit/database";
+const db = new Database();
+db.list().then(e => console.log(e));
+
+
+//initialise les listes. peut etre serialisé grace à la db
+let listeBrains=[] ; 
 listeBrains.push({'name':"aiden"});
   listeBrains.push({'name':"bb"});
   listeBrains.push({'name':"tonton"});
 listeBrains.push({"name":"standard"});
+
+//initialise les chatbots pour les ajouter à la liste de bots
 let username = "local-user";
 let bot = new rivescript();
 bot.loadFile("./public/brains/bb.rive").then(
@@ -28,8 +31,10 @@ bot.loadFile("./public/brains/bb.rive").then(
     bot.sortReplies();
   }
 ).catch(e => {console.log(e)});
+
 let listeBots = [];
 listeBots.push({'id':1,'name':'bot'+1,'status':'up','brain':'bb','bot':bot});
+
 let bot2 = new rivescript();
 bot2.loadFile("./public/brains/aiden.rive").then(
   function(){
@@ -37,6 +42,7 @@ bot2.loadFile("./public/brains/aiden.rive").then(
   }
 ).catch(e => {console.log(e)});
 listeBots.push({'id':2,'name':'bot'+2,'status':'up','brain':'aiden','bot':bot2})
+
 let bot3 = new rivescript();
 bot3.loadFile("./public/brains/tonton.rive").then(
   function(){
@@ -49,14 +55,62 @@ let listeBouches = [];
 listeBouches.push({'id':1,'name':'bouche'+1,'botID':'none'});
 
 
+//used to init the db the first time
+/*
+let listeDB = [];
+for(let i=0;i < listeBots.length;i++){
+  listeDB.push({'id':listeBots[i].id,'name':listeBots[i].name,'status':listeBots[i].status,'brain':listeBots[i].brain});
+}
+//save in the database the list of bots without the chatbot
+await db.set("listeBots",listeDB);*/
+console.log(await db.get("listeBots"));
+
+
+function initLists(){
+ db.get("listeBots").then(e =>  listeBots = e );
+ db.get("listeBrains").then(e =>  listeBrains = e );
+ db.get("listeBouches").then(e =>  listeBouches = e );
+}
+
+ function addBotDb(varbot){
+  let liste = [];
+  let temp ={'id':varbot.id,'name':varbot.name,'status':varbot.status,'brain':varbot.brain};
+  console.log(temp);
+  db.get("listeBots")
+    .then(e =>{  liste = e;
+                liste.push({temp});
+               return db.set("listeBots",liste);
+              })
+    .catch(e => console.log(e)); 
+}
+
+function deleteBotDb(idbot){
+  let liste = [];
+  db.get("listeBots").then(e => {
+    liste = e;
+    console.log("liste",liste);
+    liste.splice(liste.findIndex(b => b.id==idbot),1);
+    return db.set("listeBots",liste);
+  }).catch(err => console.log(err));
+}
+//these functions are not used, but could be to store the bot in case of a server shutdown
+
+
+
+
+//a list of brains available to chatbots
 app.get('/brains',(req,res)=>{
   res.status(200).json(listeBrains);
 });
 
 //section ------bouches --------
+/* a list of mouths available to communicate with chatbots
+this section include everything to create, destroy and use these mouths. */
 app.get('/bouches',(req,res)=>{
   res.status(200).json(listeBouches);
 });
+
+
 app.post('/bouche/:id',(req,res)=>{
   let id = req.params.id;
   let question = req.body.question;
@@ -73,6 +127,8 @@ app.post('/bouche/:id',(req,res)=>{
   }
   
 });
+
+
 app.get('/bouche/:id',(req,res)=>{ 
   let id = req.params.id;
   if(listeBots.find(e => e.id==id)){
@@ -83,6 +139,8 @@ app.get('/bouche/:id',(req,res)=>{
     res.status(404).send('not found');
   }
 });
+
+
 app.post('/bouches', function(req,res) { 
   listeBouches.sort(function(a, b) {
   // Compare the 2 id
@@ -95,6 +153,8 @@ app.post('/bouches', function(req,res) {
   listeBouches.push({'id':newid,'name':req.body.name,'botID':'none'});
   res.status(201).send("done");
 });
+
+
 app.delete('/bouche/:id',(req,res)=>{
   let id = req.params.id; 
 try{ listeBouches.splice(listeBouches.findIndex(e=>e.id==id),1);
@@ -105,6 +165,8 @@ catch(e){
   res.status(404).send("not found");
 }
 });
+
+
 app.put('/bouche/:id', function(req,res) { 
   let id = req.params.id;
     let botid = req.body.botID;
@@ -118,15 +180,17 @@ app.put('/bouche/:id', function(req,res) {
     }
   }
 });
-//-------------fin bouches --------------
+//-------------fin section bouches --------------
 
+// ------------ section chatbots -----------------
+//this gives a list of bots and an URL to test if they work (called mouths).
 app.get('/bots',(req,res)=>{
   let reponseListe = [];
   listeBots.forEach(e => reponseListe.push({'id':e.id,'name':e.name,'status':e.status,'brain':e.brain,'url':'https://BotWeb.hajijob.repl.co/'+e.id+'/mouth'}));
   res.status(200).json(reponseListe);
 });
 
-//End point to get all the tasks
+//landing page to show how a chatbot works. 
 app.get('/', (req, res)=>{
 	try{
 		res.sendFile('index.html', { root: '.' })
@@ -138,6 +202,7 @@ app.get('/', (req, res)=>{
 	}
 });
 
+//this is used as interface to talk with chatbot
 const template = (name,text) => {
 return `
  <!DOCTYPE html>
@@ -175,18 +240,17 @@ elt.value = login;
 </html>`;
 }
 
-app.post('/mouth/:id',function(req,res){
-  
-});
+//this is an exemple of how you can load the brain of a chatbot into another. could be used to load new files on the fly 
 
-
+/*
 app.get('/test', function(req, res) {
   listeBots.find(e=> e.id==2).bot.stream(listeBots.find(e=>e.id==1).bot.stringify());
   listeBots.find(e=> e.id==1).bot.sortReplies();
- /* listeBots.find(e=>e.id==1).bot.write("./test1.rive");*/
+ // listeBots.find(e=>e.id==1).bot.write("./test1.rive");
   res.status(200).send("ok");
-});
+});*/
 
+//show the content of the brain of a chatbot
 app.get('/:id', function(req, res) {
      let id = req.params.id;
   if(listeBots.find(e => e.id==id)){
@@ -196,12 +260,16 @@ app.get('/:id', function(req, res) {
     res.status(404).send("not found");
   }
 });
+
+//show the users variables of a chatbot. could be used to store profile and get loaded back with setUservars()
 app.get('/:id/data', function(req, res) {  try{listeBots.find(e=> e.id==req.params.id).bot.getUservars().then(e => {
   res.status(200).send(e);
 }).catch(e => console.log(e)); }catch(e){
    console.log(e);                                        res.status(404).send("not found");}
   
 });
+
+//exemple of mouth to test a chatbot. Could be removed if you only want users to access a chatbot through the mouths listed in bouches.html
 app.get('/:id/mouth', function(req, res) {
      let id = req.params.id;
   if(listeBots.find(e => e.id==id)){
@@ -213,6 +281,8 @@ app.get('/:id/mouth', function(req, res) {
   }
 });
 
+
+//create new bot
 app.post("/", function(req, res) {
   listeBots.sort(function(a, b) {
   // Compare the 2 id
@@ -234,6 +304,7 @@ listeBots.push({'id':newid,'name':req.body.name,'status':req.body.status,'brain'
     }
 });
 
+//ask for a reply from a bot
 app.post('/:id', function(req, res) {
   let id = req.params.id;
   let question = req.body.question;
@@ -246,6 +317,7 @@ app.post('/:id', function(req, res) {
     }).catch(e => {console.log(e)});
   
 });
+
 
 app.put('/:id', function(req,res) { 
   let id = req.params.id;
@@ -264,10 +336,12 @@ app.put('/:id', function(req,res) {
   res.status(404).send("not found");
 });
 
+
 app.delete('/:id', function(req, res) {
   let id = req.params.id;
   listeBots.splice(listeBots.findIndex(e=>e.id==id),1);
 });
+
 
 app.patch('/:id', function(req, res) {
 
@@ -275,7 +349,7 @@ app.patch('/:id', function(req, res) {
     listeBots.find(e=>e.id==req.params.id).name=req.body.name;
     listeBots.find(e=>e.id==req.params.id).status=req.body.status;
     if(req.body.status ==='unlinked'){
-      listeBouches.find(e=>e.botID==req.params.id).botID='none';
+     while(listeBouches.find(e=>e.botID==req.params.id)){listeBouches.find(e=>e.botID==req.params.id).botID='none';} 
     }
     res.status(200).send("ok");
 }
@@ -283,6 +357,7 @@ app.patch('/:id', function(req, res) {
     res.status(404).send("not found")
   }
 });
+
 
 app.listen(port, () => {
   		console.log(`Example app listening at http://localhost:${port}`)

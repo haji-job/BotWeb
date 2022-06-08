@@ -2,7 +2,7 @@
 
 ## Démarrage
 Afin d'effectuer la procédure de test, il faut dans un premier temps démarrer le serveur:
-  * Installer NPM à l'aide de la commande **npm install**
+  * Installer les dépendances à l'aide de NPM et de la commande **npm install**
   * Éxécuter la commande **npm run nodemon**
 
 ## Tests
