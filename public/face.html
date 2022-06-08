@@ -111,7 +111,7 @@
 			item.appendChild(delBtn);
 
 			let a2 = document.createElement("a");
-			a2.innerHTML = `<strong> name:<input onchange="updateBot(${bot.id})" id="name${bot.id}" value=${bot.name} > </input>, status: <select onchange="updateBot(${bot.id})" id="status${bot.id}" value=${bot.status}><option>original:${bot.status}</option><option>linked</option><option> unlinked</option></select>, brain: ${bot.brain} </strong>`;
+			a2.innerHTML = `<strong> name:<input onchange="updateBot(${bot.id})" id="name${bot.id}" value=${bot.name} > </input>, status: <select onchange="updateBot(${bot.id})" id="status${bot.id}" value=${bot.status}><option value="${bot.status}">original:${bot.status}</option><option value="linked">linked</option><option value="unlinked"> unlinked</option></select>, brain: ${bot.brain} </strong>`;
 			item.appendChild(a2);
 
       let label = document.createElement("label");
@@ -120,11 +120,13 @@
       let opt = document.createElement("select");
       let option = document.createElement("option");
         option.innerHTML = "original: " + bot.brain;
+      option.value = bot.brain;
       opt.appendChild(option);
      for (let i=0; i < listeBrains.length;i++){
         console.log(listeBrains[i]);
         let optioni = document.createElement("option");
         optioni.innerHTML =listeBrains[i].name;
+       optioni.value = listeBrains[i].name;
         opt.appendChild(optioni);
       }
 

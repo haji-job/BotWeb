@@ -178,7 +178,7 @@ app.put('/bouche/:id', function(req,res) {
     else{
     listeBots.find(e=>e.id==botid).status='unlinked';
     }
-  }
+  } 
 });
 //-------------fin section bouches --------------
 
