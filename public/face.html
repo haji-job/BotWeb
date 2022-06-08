@@ -25,6 +25,8 @@
 		}
 	</style>
 
+  <h1> Gestion des bots</h1>
+
 	<script>
 		document.addEventListener('DOMContentLoaded',init);
 
@@ -225,7 +227,6 @@ function updateBot(botId){
 			let payload = {
            			name:inputName.value,
            			status:inputStatus.value,
-                id:7
            	};
 			let myBody = JSON.stringify(payload);
 			let myInit = {

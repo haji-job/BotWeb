@@ -25,13 +25,14 @@
 		}
 	</style>
 
+  <h1> Gestion des bouches </h1>
+
 	<script>
 		document.addEventListener('DOMContentLoaded',init);
 
 		let boucheListElt;
 		let modal;
 		let inputName;
-		let inputStatus;
 		let addNewboucheButton;
     let listeBots =[];
 
@@ -39,7 +40,7 @@
 			boucheListElt = document.getElementById("boucheListUL");
 			modal = document.getElementById("newboucheModal");
 			inputName = document.getElementById("inputName");
-			inputStatus = document.getElementById("inputStatus");
+
 
 			reloadList();
 			//setInterval(reloadList,5000);
@@ -73,13 +74,13 @@
       			fetch(myURL,myInit)
 				.then((httpResponse)=>{return httpResponse.json()}).then((setbots) => {
           listeBots = setbots;
-      console.log(listeBots);
+          console.log(listeBots);
 			 myURL = `https://botweb.hajijob.repl.co/bouches`;
 
 			fetch(myURL,myInit)
 				.then((httpResponse)=>{
 					for(let field of httpResponse.headers){
-						console.log(`raw = ${field}`);
+						
 					}
 					return httpResponse.json()
 				})
@@ -94,9 +95,6 @@
 		});
     }
 
-function tryprint(id){
-  console.log(id);
-}
 
 		function createItem(bouche){
 			let item = document.createElement("li");
@@ -126,17 +124,21 @@ function tryprint(id){
       item.appendChild(label);
       let opt = document.createElement("select");
       let option = document.createElement("option");
-        option.innerHTML = "original: " + bouche.brain;
+        option.innerHTML = "original: " + bouche.botID;
+      opt.appendChild(option);
+      option =document.createElement("option");
+      option.innerHTML ='none';
+      opt.appendChild(option);
       opt.appendChild(option);
      for (let i=0; i < listeBots.length;i++){
-        console.log(listeBots[i]);
         let optioni = document.createElement("option");
         optioni.innerHTML =listeBots[i].name;
+       optioni.value = listeBots[i].id;
         opt.appendChild(optioni);
       }
       opt.addEventListener('change',
                            function(){
-    changeBrain(`${bouche.id}`,this.value)
+    changeBot(`${bouche.id}`,this.value)
                            } );
       item.appendChild(opt);
 			return item;
@@ -160,7 +162,6 @@ function tryprint(id){
 					return httpResponse.text()
 				})
 				.then((returnString)=>{
-					reloadList();
 					console.log(`All is OK ${returnString}`)
 				})
 				.catch((err)=>{
@@ -177,15 +178,12 @@ function tryprint(id){
 function updatebouche(boucheId){
   
 }
-		function changeBrain(boucheId,value){
-      console.log("trying");
-			console.log(boucheId);
-      console.log(value);
+		function changeBot(boucheId,value){
 			let myHeaders = new Headers();
 			myHeaders.append('Content-Type', 'application/json');
 		let payload = {
            			
-           			brain:value,
+           			botID:value,
            	};
 			let myBody = JSON.stringify(payload);
 			let myInit = {
@@ -195,7 +193,7 @@ function updatebouche(boucheId){
            		cache: 'default',
            		body:myBody
         	};
-        	let myURL = "https://botweb.hajijob.repl.co/bouche"+boucheId;
+        	let myURL = "https://botweb.hajijob.repl.co/bouche/"+boucheId;
       			fetch(myURL,myInit)
 				.then(reloadList());
 		}
@@ -209,8 +207,7 @@ function updatebouche(boucheId){
 			myHeaders.append('Content-Type', 'application/json');
 			let payload = {
            			name:inputName.value,
-           			status:inputStatus.value,
-                id:7
+                
            	};
 			let myBody = JSON.stringify(payload);
 			let myInit = {
@@ -231,8 +228,6 @@ function updatebouche(boucheId){
 				reloadList();
 				//clear fields
 				inputName.value="";
-				inputStatus.value="";
-				console.log(`response is ${responseBody}`);
 			})
 			.catch((err)=>{
 				console.log(`ERROR : ${err}`);
@@ -255,8 +250,6 @@ function updatebouche(boucheId){
     		<label for="inputName">Name:</label>
     		<input type="text" id="inputName" name="name"></input>
 
-   			<label for="inputStatus">Status:</label>
-    		<input type="text" id="inputStatus" name="status"></input>
     		<button id="addNewboucheButton">Add This bouche</button>
     	</div>
 

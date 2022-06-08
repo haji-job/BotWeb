@@ -47,21 +47,82 @@ listeBots.push({'id':3,'name':'bot'+3,'status':'up','brain':'tonton','bot':bot3}
 
 let listeBouches = [];
 listeBouches.push({'id':1,'name':'bouche'+1,'botID':'none'});
-console.log(listeBouches);
 
 
 app.get('/brains',(req,res)=>{
   res.status(200).json(listeBrains);
 });
+
+//section ------bouches --------
 app.get('/bouches',(req,res)=>{
   res.status(200).json(listeBouches);
 });
-
+app.post('/bouche/:id',(req,res)=>{
+  let id = req.params.id;
+  let question = req.body.question;
+  let login = req.body.login;
+  let botID = listeBouches.find(e => e.id==id).botID;
+  if(botID !=='none'){
+    listeBots.find(e => e.id==botID).bot.reply(login,question).then(function(reply) {
+    console.log("The bot says: " + reply);
+   res.status(201).send(reply);
+    }).catch(e => {console.log(e)});
+  }
+  else{
+     res.status(404).send("this mouth is not linked");
+  }
+  
+});
+app.get('/bouche/:id',(req,res)=>{ 
+  let id = req.params.id;
+  if(listeBots.find(e => e.id==id)){
+    let e = listeBots.find(e => e.id==id).bot;
+    res.send(template("bouche",id));
+  }
+  else{
+    res.status(404).send('not found');
+  }
+});
+app.post('/bouches', function(req,res) { 
+  listeBouches.sort(function(a, b) {
+  // Compare the 2 id
+  if (a.id <b.id) return -1;
+  if (a.id >b.id) return 1;
+  return 0;
+});
+  let newid= (listeBouches[listeBouches.length-1].id);
+  newid++;
+  listeBouches.push({'id':newid,'name':req.body.name,'botID':'none'});
+  res.status(201).send("done");
+});
+app.delete('/bouche/:id',(req,res)=>{
+  let id = req.params.id; 
+try{ listeBouches.splice(listeBouches.findIndex(e=>e.id==id),1);
+res.status(201).send("done");
+}
+catch(e){
+  console.log(e);
+  res.status(404).send("not found");
+}
+});
+app.put('/bouche/:id', function(req,res) { 
+  let id = req.params.id;
+    let botid = req.body.botID;
+  if(listeBouches.find(e=>e.id==req.params.id)){
+    listeBouches.find(e=>e.id==req.params.id).botID=botid;
+    if(botid !=='none'){
+    listeBots.find(e=>e.id==botid).status='linked';
+  }
+    else{
+    listeBots.find(e=>e.id==botid).status='unlinked';
+    }
+  }
+});
+//-------------fin bouches --------------
 
 app.get('/bots',(req,res)=>{
   let reponseListe = [];
   listeBots.forEach(e => reponseListe.push({'id':e.id,'name':e.name,'status':e.status,'brain':e.brain,'url':'https://BotWeb.hajijob.repl.co/'+e.id+'/mouth'}));
-  console.log(listeBots);
   res.status(200).json(reponseListe);
 });
 
@@ -77,7 +138,7 @@ app.get('/', (req, res)=>{
 	}
 });
 
-const template = (text) => {
+const template = (name,text) => {
 return `
  <!DOCTYPE html>
  <html>
@@ -95,19 +156,19 @@ elt.value = login;
 
 <body onload="login()">
 
-	<h1>Chatbot ${text}</h1>
+	<h1>${name} ${text}</h1>
 <input type="hidden" id="login"></input>
 
 	<p>
 		say: <input id="user_input" />
-		<button id="submit" onclick=chat(${text})>submit</button>
+		<button id="submit" onclick=${name}(${text})>submit</button>
 	</p>
 
 	<p>
 		reply: <span id="output"></span>
 	</p>
 
-  <img src='../chat.jpeg'></img>
+  <img src='../business.jpg'></img>
 
 </body>
 
@@ -118,12 +179,6 @@ app.post('/mouth/:id',function(req,res){
   
 });
 
-app.get('/testBot',function(req,res){
-  listeBots.find(e=> e.id==2).bot.getUservars().then(e => console.log(e));
-  listeBots.find(e=> e.id==2).bot.getUservar('local-user','__history__').then(e=> console.log(e));
-  listeBots.find(e=> e.id==2).bot.getUservar('local-user','__last_triggers__').then(e=> console.log(e));
-  res.status(200).send("ok");
-});
 
 app.get('/test', function(req, res) {
   listeBots.find(e=> e.id==2).bot.stream(listeBots.find(e=>e.id==1).bot.stringify());
@@ -142,7 +197,6 @@ app.get('/:id', function(req, res) {
   }
 });
 app.get('/:id/data', function(req, res) {  try{listeBots.find(e=> e.id==req.params.id).bot.getUservars().then(e => {
-  console.log(e);
   res.status(200).send(e);
 }).catch(e => console.log(e)); }catch(e){
    console.log(e);                                        res.status(404).send("not found");}
@@ -152,7 +206,7 @@ app.get('/:id/mouth', function(req, res) {
      let id = req.params.id;
   if(listeBots.find(e => e.id==id)){
     let e = listeBots.find(e => e.id==id).bot;
-    res.send(template(id));
+    res.send(template("chat",id));
   }
   else{
     res.status(404).send('not found');
@@ -166,7 +220,8 @@ app.post("/", function(req, res) {
   if (a.id >b.id) return 1;
   return 0;
 });
-  let newid= listeBots[listeBots.length-1].id++;
+  let newid= listeBots[listeBots.length-1].id;
+    newid++;
     if(!(listeBots.find(e=>e.id==newid))){
    let temp = new rivescript(); 
       let brain = "standard";
@@ -199,8 +254,6 @@ app.put('/:id', function(req,res) {
     
    let bot = listeBots.find(e=>e.id==id); listeBots.splice(listeBots.findIndex(e=>e.id==id),1);
    
-    console.log(brain);
-    console.log(bot.name); 
     let temp = new rivescript();
     temp.loadFile("./public/brains/"+brain+".rive").then(function(){
     temp.sortReplies();
@@ -208,7 +261,7 @@ app.put('/:id', function(req,res) {
     listeBots.push({'id':id,'name':bot.name,'status':bot.status,'brain':brain,'bot':temp});
     res.status(201).send(reply);
   }
-  res.status(404).Send("not found");
+  res.status(404).send("not found");
 });
 
 app.delete('/:id', function(req, res) {
@@ -217,11 +270,13 @@ app.delete('/:id', function(req, res) {
 });
 
 app.patch('/:id', function(req, res) {
-  console.log(req.params.id);
-  console.log(req.body);
+
   if((listeBots.find(e=>e.id==req.params.id))){
     listeBots.find(e=>e.id==req.params.id).name=req.body.name;
     listeBots.find(e=>e.id==req.params.id).status=req.body.status;
+    if(req.body.status ==='unlinked'){
+      listeBouches.find(e=>e.botID==req.params.id).botID='none';
+    }
     res.status(200).send("ok");
 }
   else{
